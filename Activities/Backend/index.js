@@ -10,11 +10,27 @@ app.get("/getName", (req, res) => {
   res.status(200).json(name);
 });
 
-app.post("/login", (req, res) => {
-  const { username, password } = req.body;
+app.post("/api/register", (req, res) => {
+  const { email, password } = req.body;
 
-  if (username === "admin" && password === "admin") {
-    res.status(200).json({ message: "Login successful", status: "success" });
+  // Mock registration: assume success for any email/password
+  if (email && password) {
+    const user = { email };
+    const token = 'mock-jwt-token-' + Date.now(); // Mock token
+    res.status(200).json({ user, token });
+  } else {
+    res.status(400).json({ message: "Invalid credentials", status: "failed" });
+  }
+});
+
+app.post("/api/login", (req, res) => {
+  const { email, password } = req.body;
+
+  // Mock login: success for admin@example.com / admin
+  if (email === "admin@example.com" && password === "admin") {
+    const user = { email };
+    const token = 'mock-jwt-token-' + Date.now(); // Mock token
+    res.status(200).json({ user, token });
   } else {
     res.status(403).json({ message: "Invalid credentials", status: "failed" });
   }

@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import Card from '../components/Card';
 import Button from '../components/Button';
 import './Login.css';
+import { authService } from '../Services/AuthService';
 
 const Login = () => {
   const [email, setEmail] = useState('');
@@ -20,8 +21,9 @@ const Login = () => {
         throw new Error('Please fill in all fields');
       }
 
-      console.log('Login attempt:', { email, password });
-      alert('Login successful! (demo only)');
+      const user = await authService.login({ email, password });
+      console.log('Logged in user:', user);
+      alert('Login successful! Check console for user data.');
 
     } catch (err) {
       setError(err.message);
