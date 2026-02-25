@@ -1,20 +1,29 @@
 {
-  "name": "wdd2-a",
+  "name": "inventory-management-app",
   "version": "1.0.0",
-  "description": "",
+  "description": "Full-stack inventory management system with React frontend and Node.js backend",
   "license": "ISC",
   "author": "",
-  "type": "module",
-  "main": "index.js",
   "scripts": {
-    "dev": "node index.js",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "install-backend": "cd backend && npm install",
+    "install-frontend": "cd frontend && npm install",
+    "install-all": "npm run install-backend && npm run install-frontend",
+    "dev": "concurrently \"npm run dev-backend\" \"npm run dev-frontend\"",
+    "dev-backend": "cd backend && npm run dev",
+    "dev-frontend": "cd frontend && npm run dev",
+    "start": "cd backend && npm start",
+    "build": "cd frontend && npm run build",
+    "test": "echo \"No tests specified\" && exit 1"
   },
-  "dependencies": {
-    "bcryptjs": "^3.0.3",
-    "dotenv": "^17.2.3",
-    "express": "^5.2.1",
-    "jsonwebtoken": "^9.0.3",
-    "mongoose": "^9.1.5"
-  }
+  "devDependencies": {
+    "concurrently": "^8.2.0"
+  },
+  "keywords": [
+    "inventory",
+    "management",
+    "react",
+    "nodejs",
+    "mongodb",
+    "express"
+  ]
 }
