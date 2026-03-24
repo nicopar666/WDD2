@@ -1,22 +1,12 @@
-import React from 'react';
-import './Card.css';  
+import './Card.css';
 
-const Card = ({
-  children, 
-  title, 
-  className = '', 
-  ...props 
-}) => {
+export default function Card({ title, children, error, success }) {
   return (
-    <div className="card-container" {...props}>
-      <div className={`card ${className}`}>
-        {title && (
-          <h1 className="card-title">{title}</h1>
-        )}
-        {children}
-      </div>
+    <div className="card">
+      {title && <h1 className="card-title">{title}</h1>}
+      {error && <div className="card-error">{error}</div>}
+      {success && <div className="card-success">{success}</div>}
+      {children}
     </div>
   );
-};
-
-export default Card;
+}

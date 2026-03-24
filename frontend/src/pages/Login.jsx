@@ -1,11 +1,11 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import Card from '../components/Card';
 import Button from '../components/Button';
+import { useAuth } from '../context/AuthContext';
 import './Login.css';
-import { useAuth } from '../Contexts/AuthContext';
 
-const Login = () => {
+export default function Login() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
@@ -13,7 +13,7 @@ const Login = () => {
   const navigate = useNavigate();
   const { login } = useAuth();
 
-  const handleSubmit = async (e) => {
+  async function handleSubmit(e) {
     e.preventDefault();
     setError('');
     setLoading(true);
@@ -24,72 +24,53 @@ const Login = () => {
       }
 
       await login(email, password);
-      alert('Login successful! Redirecting to inventory...');
       navigate('/inventory');
-
     } catch (err) {
       setError(err.message);
     } finally {
       setLoading(false);
     }
-  };
+  }
 
   return (
-    <Card title="Welcome Back">
-      {error && (
-        <div className="alert-error">
-          {error}
-        </div>
-      )}
+    <div className="auth-page">
+      <Card title="Welcome Back" error={error}>
+        <form className="auth-form" onSubmit={handleSubmit}>
+          <div className="form-group">
+            <label htmlFor="email" className="form-label">Email</label>
+            <input
+              id="email"
+              type="email"
+              className="form-input"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              placeholder="Enter your email"
+              required
+            />
+          </div>
 
-      <form className="login-form" onSubmit={handleSubmit}>
-        <div className="input-group">
-          <label htmlFor="email" className="input-label">
-            Email
-          </label>
-          <input
-            id="email"
-            type="email"
-            className="input-field"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            placeholder="Enter your email"
-            required
-            autoFocus
-          />
-        </div>
+          <div className="form-group">
+            <label htmlFor="password" className="form-label">Password</label>
+            <input
+              id="password"
+              type="password"
+              className="form-input"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              placeholder="Enter your password"
+              required
+            />
+          </div>
 
-        <div className="input-group">
-          <label htmlFor="password" className="input-label">
-            Password
-          </label>
-          <input
-            id="password"
-            type="password"
-            className="input-field"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            placeholder="Enter your password"
-            required
-          />
-        </div>
+          <Button type="submit" loading={loading}>
+            {loading ? 'Signing in...' : 'Sign In'}
+          </Button>
+        </form>
 
-        <Button
-          type="submit"
-          className="btn-primary"
-          disabled={loading}
-          loading={loading}
-        >
-          {loading ? 'Signing in...' : 'Sign In'}
-        </Button>
-      </form>
-
-      <div className="auth-link">
-        Don't have an account?{' '}
-        <Link to="/register">Sign up</Link>
-      </div>
-    </Card>
+        <p className="auth-link">
+          Don't have an account? <Link to="/register">Sign up</Link>
+        </p>
+      </Card>
+    </div>
   );
-};
-
-export default Login;
+}

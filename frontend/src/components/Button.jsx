@@ -1,31 +1,14 @@
-import React from 'react';
-import '../components/Button.css';
+import './Button.css';
 
-const Button = ({
-  children,
-  className = '',
-  disabled = false,
-  loading = false,
-  type = 'button',
-  ...props
-}) => {
+export default function Button({ children, variant = 'primary', loading = false, disabled, onClick, type = 'button' }) {
   return (
     <button
       type={type}
-      className={`btn ${className}`}
+      className={`btn btn-${variant}`}
       disabled={disabled || loading}
-      {...props}
+      onClick={onClick}
     >
-      {loading ? (
-        <>
-          <span className="spinner" />
-          Processing...
-        </>
-      ) : (
-        children
-      )}
+      {loading ? 'Loading...' : children}
     </button>
   );
-};
-
-export default Button;
+}
