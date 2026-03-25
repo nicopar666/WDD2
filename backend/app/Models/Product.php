@@ -10,23 +10,24 @@ class Product extends Model
     use HasFactory;
 
     protected $fillable = [
-        'user_id',
-        'product_name',
-        'description',
-        'quantity',
+        'name',
         'price',
+        'stock_count',
+        'category',
+        'image_url',
+        'is_preorder',
     ];
 
     protected function casts(): array
     {
         return [
-            'quantity' => 'integer',
             'price' => 'decimal:2',
+            'is_preorder' => 'boolean',
         ];
     }
 
-    public function user()
+    public function orders()
     {
-        return $this->belongsTo(User::class);
+        return $this->hasMany(Order::class);
     }
 }

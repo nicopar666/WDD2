@@ -1,21 +1,27 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\Api\AuthController;
-use App\Http\Controllers\Api\ProductController;
+use App\Http\Controllers\ProductController;
+use App\Http\Controllers\OrderController;
+use App\Http\Controllers\AuthController;
 
 Route::prefix('v1')->group(function () {
-    Route::post('/register', [AuthController::class, 'register']);
+    // Auth
     Route::post('/login', [AuthController::class, 'login']);
-
+    
+    // Products (public)
+    Route::get('/products', [ProductController::class, 'index']);
+    Route::get('/products/{product}', [ProductController::class, 'show']);
+    
+    // Orders (public - for purchases)
+    Route::post('/orders', [OrderController::class, 'store']);
+    Route::get('/orders', [OrderController::class, 'index']);
+    
+    // Admin routes (protected)
     Route::middleware('auth:sanctum')->group(function () {
-        Route::post('/logout', [AuthController::class, 'logout']);
-        Route::get('/user', [AuthController::class, 'user']);
-
-        Route::get('/inventory', [ProductController::class, 'index']);
-        Route::post('/inventory', [ProductController::class, 'store']);
-        Route::get('/inventory/{product}', [ProductController::class, 'show']);
-        Route::put('/inventory/{product}', [ProductController::class, 'update']);
-        Route::delete('/inventory/{product}', [ProductController::class, 'destroy']);
+        Route::post('/products', [ProductController::class, 'store']);
+        Route::put('/products/{product}', [ProductController::class, 'update']);
+        Route::delete('/products/{product}', [ProductController::class, 'destroy']);
+        Route::patch('/products/{product}/stock', [ProductController::class, 'updateStock']);
     });
 });

@@ -10,11 +10,12 @@ return new class extends Migration
     {
         Schema::create('products', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('user_id')->constrained()->onDelete('cascade');
-            $table->string('product_name');
-            $table->text('description')->nullable();
-            $table->integer('quantity')->default(0);
-            $table->decimal('price', 10, 2)->default(0);
+            $table->string('name');
+            $table->decimal('price', 10, 2);
+            $table->integer('stock_count')->default(0);
+            $table->string('category')->nullable();
+            $table->string('image_url')->nullable();
+            $table->boolean('is_preorder')->default(false);
             $table->timestamps();
         });
     }

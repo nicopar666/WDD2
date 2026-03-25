@@ -1,31 +1,36 @@
-import { BrowserRouter, Routes, Route } from 'react-router-dom';
-import { AuthProvider } from './context/AuthContext';
-import ProtectedRoute from './components/ProtectedRoute';
-import Home from './pages/Home';
-import Login from './pages/Login';
-import Register from './pages/Register';
-import Inventory from './pages/Inventory';
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import { CartProvider } from './context/CartContext';
+import Storefront from './pages/Storefront';
+import AdminLogin from './pages/AdminLogin';
+import AdminDashboard from './pages/AdminDashboard';
+
+function AdminRoute({ children }) {
+  const token = localStorage.getItem('admin_token');
+  if (!token) {
+    return <Navigate to="/admin/login" replace />;
+  }
+  return children;
+}
 
 function App() {
   return (
-    <AuthProvider>
+    <CartProvider>
       <BrowserRouter>
         <Routes>
-          <Route path="/" element={<Home />} />
-          <Route path="/login" element={<Login />} />
-          <Route path="/register" element={<Register />} />
+          <Route path="/" element={<Storefront />} />
+          <Route path="/admin/login" element={<AdminLogin />} />
           <Route
-            path="/inventory"
+            path="/admin"
             element={
-              <ProtectedRoute>
-                <Inventory />
-              </ProtectedRoute>
+              <AdminRoute>
+                <AdminDashboard />
+              </AdminRoute>
             }
           />
-          <Route path="*" element={<div>404 - Not Found</div>} />
+          <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
       </BrowserRouter>
-    </AuthProvider>
+    </CartProvider>
   );
 }
 
