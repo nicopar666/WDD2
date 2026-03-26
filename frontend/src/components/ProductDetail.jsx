@@ -1,6 +1,17 @@
 import { useState } from 'react';
-import { X, Heart, ShoppingCart, Plus, Minus, Star, Check, ChevronRight, Package, Truck, Shield } from 'lucide-react';
+import { X, Heart, ShoppingCart, Plus, Minus, Check, Package, Truck, Shield } from 'lucide-react';
 import { useCart } from '../context/CartContext';
+
+const CATEGORY_IMAGES = {
+  'CPU': 'https://images.unsplash.com/photo-1591799264318-7e6ef8ddb7ea?w=400&h=400&fit=crop',
+  'GPU': 'https://images.unsplash.com/photo-1555685812-4b943f3db990?w=400&h=400&fit=crop',
+  'Motherboard': 'https://images.unsplash.com/photo-1518770660439-4636190af475?w=400&h=400&fit=crop',
+  'RAM': 'https://images.unsplash.com/photo-1562976540-1502c2145186?w=400&h=400&fit=crop',
+  'SSD': 'https://images.unsplash.com/photo-1525547719571-a2d4ac8945e2?w=400&h=400&fit=crop',
+  'Case': 'https://images.unsplash.com/photo-1587202372775-e229f172b9d7?w=400&h=400&fit=crop',
+  'PSU': 'https://images.unsplash.com/photo-1605251307511-3f93f05b238c?w=400&h=400&fit=crop',
+  'Cooler': 'https://images.unsplash.com/photo-1617305855058-336d24456869?w=400&h=400&fit=crop',
+};
 
 export default function ProductDetail({ product, onClose }) {
   const [quantity, setQuantity] = useState(1);
@@ -32,8 +43,11 @@ export default function ProductDetail({ product, onClose }) {
     }
   };
 
-  const getInitials = (name) => {
-    return name.split(' ').slice(0, 2).map(w => w[0]).join('').toUpperCase();
+  const getImage = () => {
+    if (!imageError && product.image_url) {
+      return product.image_url;
+    }
+    return CATEGORY_IMAGES[product.category] || CATEGORY_IMAGES['CPU'];
   };
 
   return (
@@ -42,126 +56,97 @@ export default function ProductDetail({ product, onClose }) {
       
       <div className="relative min-h-screen flex items-center justify-center p-4 py-8">
         <div 
-          className="relative w-full max-w-4xl rounded-2xl overflow-hidden animate-fade-in"
+          className="relative w-full max-w-3xl rounded-xl overflow-hidden"
           style={{ backgroundColor: '#1a1a22', border: '1px solid #2a2a35' }}
           onClick={e => e.stopPropagation()}
         >
           <button 
             onClick={onClose} 
-            className="absolute top-4 right-4 z-10 p-2 rounded-lg hover:bg-[#2a2a35] text-gray-400 hover:text-white transition-colors"
+            className="absolute top-3 right-3 z-10 p-2 rounded-lg hover:bg-[#2a2a35] text-gray-400 hover:text-white transition-colors"
           >
-            <X size={22} />
+            <X size={18} />
           </button>
 
           <div className="grid grid-cols-1 md:grid-cols-2">
-            {/* Image */}
-            <div className="aspect-square sm:aspect-auto flex items-center justify-center p-8" style={{ backgroundColor: '#141418' }}>
-              {!imageError && product.image_url ? (
-                <img
-                  src={product.image_url}
-                  alt={product.name}
-                  onError={() => setImageError(true)}
-                  className="w-full h-full max-w-xs object-contain"
-                />
-              ) : (
-                <span className="text-7xl font-bold" style={{ color: '#3a3a45' }}>
-                  {getInitials(product.name)}
-                </span>
-              )}
+            <div className="aspect-square flex items-center justify-center overflow-hidden" style={{ backgroundColor: '#141418' }}>
+              <img
+                src={getImage()}
+                alt={product.name}
+                onError={() => setImageError(true)}
+                className="w-full h-full object-cover"
+              />
             </div>
 
-            {/* Details */}
-            <div className="p-6 sm:p-8">
-              <div className="flex items-center gap-2 mb-3">
-                <span className="px-3 py-1 rounded-full text-xs font-medium" style={{ backgroundColor: '#2a2a35', color: '#60a5fa' }}>
+            <div className="p-5">
+              <div className="flex items-center gap-2 mb-2">
+                <span className="px-2 py-0.5 rounded text-[10px] font-medium" style={{ backgroundColor: '#2a2a35', color: '#60a5fa' }}>
                   {product.category}
                 </span>
                 {product.is_preorder && (
-                  <span className="px-3 py-1 rounded-full text-xs font-medium text-white"
+                  <span className="px-2 py-0.5 rounded text-[10px] font-medium text-white"
                     style={{ background: 'linear-gradient(135deg, #f59e0b 0%, #ea580c 100%)' }}>
                     Pre-order
                   </span>
                 )}
               </div>
 
-              <h2 className="text-2xl font-bold text-white mb-3">{product.name}</h2>
+              <h2 className="text-lg font-bold text-white mb-2 line-clamp-2">{product.name}</h2>
               
-              <div className="flex items-center gap-2 mb-4">
-                <div className="flex items-center gap-0.5">
-                  {[...Array(5)].map((_, i) => (
-                    <Star key={i} size={16} className="text-yellow-400 fill-yellow-400" />
-                  ))}
-                </div>
-                <span className="text-gray-500 text-sm">(24 reviews)</span>
-              </div>
-
-              <p className="text-cyan-400 font-bold text-4xl mb-6">
+              <p className="text-cyan-400 font-bold text-2xl mb-4">
                 ₱{Number(product.price).toLocaleString('en-PH')}
               </p>
 
-              {/* Features */}
-              <div className="flex flex-wrap gap-2 mb-6">
-                <div className="flex items-center gap-2 px-3 py-2 rounded-xl" style={{ backgroundColor: '#141418' }}>
-                  <Package size={16} className="text-blue-400" />
+              <div className="flex flex-wrap gap-2 mb-4">
+                <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg" style={{ backgroundColor: '#141418' }}>
+                  <Package size={14} className="text-blue-400" />
                   <span className="text-gray-300 text-xs">In Stock</span>
                 </div>
-                <div className="flex items-center gap-2 px-3 py-2 rounded-xl" style={{ backgroundColor: '#141418' }}>
-                  <Truck size={16} className="text-emerald-400" />
+                <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg" style={{ backgroundColor: '#141418' }}>
+                  <Truck size={14} className="text-emerald-400" />
                   <span className="text-gray-300 text-xs">Free Shipping</span>
                 </div>
-                <div className="flex items-center gap-2 px-3 py-2 rounded-xl" style={{ backgroundColor: '#141418' }}>
-                  <Shield size={16} className="text-purple-400" />
+                <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg" style={{ backgroundColor: '#141418' }}>
+                  <Shield size={14} className="text-purple-400" />
                   <span className="text-gray-300 text-xs">2 Yr Warranty</span>
                 </div>
               </div>
 
-              {/* Stock Bar */}
-              <div className="rounded-xl p-4 mb-6" style={{ backgroundColor: '#141418' }}>
-                <div className="flex items-center justify-between mb-2">
-                  <span className="text-gray-400 text-sm">Availability</span>
-                  <span className="text-sm font-medium" style={{ color: product.stock_count > 10 ? '#34d399' : product.stock_count > 0 ? '#fbbf24' : '#f87171' }}>
+              <div className="rounded-lg p-3 mb-4" style={{ backgroundColor: '#141418' }}>
+                <div className="flex items-center justify-between mb-1">
+                  <span className="text-gray-400 text-xs">Availability</span>
+                  <span className="text-xs font-medium" style={{ color: product.stock_count > 10 ? '#34d399' : product.stock_count > 0 ? '#fbbf24' : '#f87171' }}>
                     {product.stock_count > 0 ? `${product.stock_count} available` : 'Out of stock'}
                   </span>
                 </div>
-                <div className="h-1.5 rounded-full overflow-hidden" style={{ backgroundColor: '#2a2a35' }}>
-                  <div 
-                    className="h-full rounded-full"
-                    style={{ 
-                      width: `${Math.min((product.stock_count / 50) * 100, 100)}%`,
-                      background: product.stock_count > 10 ? 'linear-gradient(90deg, #34d399, #10b981)' : product.stock_count > 0 ? 'linear-gradient(90deg, #fbbf24, #f59e0b)' : '#dc2626'
-                    }}
-                  />
-                </div>
               </div>
 
-              {/* Quantity & Actions */}
               {!isOutOfStock && (
-                <div className="flex items-center gap-3 mb-6">
-                  <div className="flex items-center rounded-xl" style={{ backgroundColor: '#141418' }}>
+                <div className="flex items-center gap-3 mb-4">
+                  <div className="flex items-center rounded-lg" style={{ backgroundColor: '#141418' }}>
                     <button
                       onClick={() => setQuantity(q => Math.max(1, q - 1))}
-                      className="p-3 hover:bg-[#2a2a35] text-gray-400 hover:text-white transition-colors rounded-l-xl"
+                      className="p-2 hover:bg-[#2a2a35] text-gray-400 hover:text-white transition-colors rounded-l-lg"
                     >
-                      <Minus size={18} />
+                      <Minus size={14} />
                     </button>
-                    <span className="text-white font-semibold w-12 text-center">{quantity}</span>
+                    <span className="text-white font-medium w-8 text-center text-sm">{quantity}</span>
                     <button
                       onClick={() => setQuantity(q => Math.min(product.stock_count, q + 1))}
-                      className="p-3 hover:bg-[#2a2a35] text-gray-400 hover:text-white transition-colors rounded-r-xl"
+                      className="p-2 hover:bg-[#2a2a35] text-gray-400 hover:text-white transition-colors rounded-r-lg"
                     >
-                      <Plus size={18} />
+                      <Plus size={14} />
                     </button>
                   </div>
 
                   <button
                     onClick={handleWishlist}
-                    className="p-3 rounded-xl border transition-all"
+                    className="p-2 rounded-lg border transition-all"
                     style={inWishlist 
                       ? { borderColor: '#ef4444', backgroundColor: 'rgba(239, 68, 68, 0.1)', color: '#ef4444' }
                       : { borderColor: '#3a3a45', color: '#9ca3af' }
                     }
                   >
-                    <Heart size={18} fill={inWishlist ? "currentColor" : "none"} />
+                    <Heart size={14} fill={inWishlist ? "currentColor" : "none"} />
                   </button>
                 </div>
               )}
@@ -169,24 +154,24 @@ export default function ProductDetail({ product, onClose }) {
               <button
                 onClick={handleAddToCart}
                 disabled={isOutOfStock}
-                className="w-full py-4 rounded-xl font-bold transition-all flex items-center justify-center gap-2"
-                style={isOutOfStock
-                  ? { backgroundColor: '#27272a', color: '#71717a', cursor: 'not-allowed' }
-                  : isAdded
-                    ? { backgroundColor: '#10b981', color: 'white' }
-                    : { background: 'linear-gradient(135deg, #3b82f6 0%, #2563eb 100%)', color: 'white' }
-                }
+                className={`w-full py-2.5 rounded-lg font-medium text-sm transition-all hover:opacity-90 disabled:opacity-50 ${
+                  isOutOfStock ? 'cursor-not-allowed' : ''
+                }`}
+                style={{
+                  background: isOutOfStock ? '#27272a' : isAdded ? '#10b981' : 'linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%)',
+                  color: isOutOfStock ? '#71717a' : 'white'
+                }}
               >
                 {isOutOfStock ? (
                   'OUT OF STOCK'
                 ) : isAdded ? (
                   <>
-                    <Check size={20} />
+                    <Check size={16} />
                     ADDED TO CART
                   </>
                 ) : (
                   <>
-                    <ShoppingCart size={20} />
+                    <ShoppingCart size={14} />
                     ADD TO CART - ₱{(product.price * quantity).toLocaleString('en-PH')}
                   </>
                 )}

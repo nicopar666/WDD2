@@ -1,11 +1,23 @@
-import { useState } from 'react';
-import { Heart, ShoppingCart, Eye, Plus, Minus, Star, Check } from 'lucide-react';
+import { useState, memo } from 'react';
+import { Heart, ShoppingCart, Eye, Plus, Minus, Check } from 'lucide-react';
 import { useCart } from '../context/CartContext';
 
-export default function ProductCard({ product, onViewDetails }) {
+const CATEGORY_IMAGES = {
+  'CPU': 'https://images.unsplash.com/photo-1591799264318-7e6ef8ddb7ea?w=400&h=400&fit=crop&q=80',
+  'GPU': 'https://images.unsplash.com/photo-1555685812-4b943f3db990?w=400&h=400&fit=crop&q=80',
+  'Motherboard': 'https://images.unsplash.com/photo-1518770660439-4636190af475?w=400&h=400&fit=crop&q=80',
+  'RAM': 'https://images.unsplash.com/photo-1562976540-1502c2145186?w=400&h=400&fit=crop&q=80',
+  'SSD': 'https://images.unsplash.com/photo-1525547719571-a2d4ac8945e2?w=400&h=400&fit=crop&q=80',
+  'Case': 'https://images.unsplash.com/photo-1587202372775-e229f172b9d7?w=400&h=400&fit=crop&q=80',
+  'PSU': 'https://images.unsplash.com/photo-1605251307511-3f93f05b238c?w=400&h=400&fit=crop&q=80',
+  'Cooler': 'https://images.unsplash.com/photo-1617305855058-336d24456869?w=400&h=400&fit=crop&q=80',
+};
+
+function ProductCard({ product, onViewDetails }) {
   const [quantity, setQuantity] = useState(1);
   const [imageError, setImageError] = useState(false);
   const [isAdded, setIsAdded] = useState(false);
+  const [imageLoaded, setImageLoaded] = useState(false);
   const { addToCart, addToWishlist, removeFromWishlist, isInWishlist } = useCart();
 
   const isOutOfStock = product.stock_count <= 0 && !product.is_preorder;
@@ -37,105 +49,93 @@ export default function ProductCard({ product, onViewDetails }) {
     onViewDetails?.(product);
   };
 
-  const getInitials = (name) => {
-    return name.split(' ').slice(0, 2).map(w => w[0]).join('').toUpperCase();
+  const getImage = () => {
+    if (!imageError && product.image_url) {
+      return product.image_url;
+    }
+    return CATEGORY_IMAGES[product.category] || CATEGORY_IMAGES['CPU'];
   };
 
   return (
     <div 
       onClick={handleViewDetails}
-      className="product-card rounded-2xl overflow-hidden cursor-pointer w-full"
-      style={{ backgroundColor: '#1a1a22', border: '1px solid #2a2a35' }}
+      className="group relative bg-[#1a1a22] rounded-xl overflow-hidden border border-[#2a2a35] hover:border-blue-500/50 transition-all duration-300 cursor-pointer hover:-translate-y-1"
     >
-      {/* Image Area */}
-      <div className="relative h-44 flex items-center justify-center" style={{ backgroundColor: '#141418' }}>
-        {!imageError && product.image_url ? (
-          <img
-            src={product.image_url}
-            alt={product.name}
-            onError={() => setImageError(true)}
-            className="w-full h-full object-contain p-4"
-          />
-        ) : (
-          <span className="text-4xl font-bold" style={{ color: '#3a3a45' }}>
-            {getInitials(product.name)}
-          </span>
+      <div className="relative h-48 overflow-hidden bg-[#141418]">
+        {!imageLoaded && (
+          <div className="absolute inset-0 flex items-center justify-center bg-[#141418]">
+            <div className="w-8 h-8 border-2 border-blue-500/30 border-t-blue-500 rounded-full animate-spin" />
+          </div>
         )}
+        <img
+          src={getImage()}
+          alt={product.name}
+          loading="lazy"
+          onLoad={() => setImageLoaded(true)}
+          onError={() => setImageError(true)}
+          className={`w-full h-full object-cover transition-transform duration-500 group-hover:scale-110 ${imageLoaded ? 'opacity-100' : 'opacity-0'}`}
+        />
 
-        {/* Badges */}
-        <div className="absolute top-3 left-3 flex flex-col gap-2">
+        <div className="absolute top-2 left-2 flex flex-col gap-1">
           {product.is_preorder && (
-            <span className="px-2.5 py-1 rounded-lg text-xs font-semibold text-white"
-              style={{ background: 'linear-gradient(135deg, #f59e0b 0%, #ea580c 100%)' }}>
+            <span className="px-2 py-0.5 rounded text-[10px] font-semibold text-white bg-gradient-to-r from-amber-500 to-orange-500">
               PRE-ORDER
             </span>
           )}
         </div>
 
         {product.stock_count > 0 && product.stock_count <= 5 && (
-          <span className="absolute top-3 right-3 px-2 py-1 rounded-md text-xs font-medium text-white"
-            style={{ backgroundColor: '#dc2626' }}>
+          <span className="absolute top-2 right-2 px-2 py-0.5 rounded text-[10px] font-medium text-white bg-red-500">
             {product.stock_count} left
           </span>
         )}
 
-        {/* Action Buttons */}
-        <div className="absolute top-3 right-3 flex flex-col gap-2">
+        <div className="absolute top-2 right-2 flex flex-col gap-1 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
           <button
             onClick={handleWishlist}
-            className="p-2 rounded-lg transition-all"
-            style={inWishlist ? { backgroundColor: '#ef4444', color: 'white' } : { backgroundColor: 'rgba(0,0,0,0.5)', color: 'white' }}
+            className="p-1.5 rounded-lg bg-black/70 text-white hover:bg-red-500 transition-colors"
           >
-            <Heart size={14} fill={inWishlist ? "currentColor" : "none"} />
+            <Heart size={12} fill={inWishlist ? "currentColor" : "none"} />
           </button>
           <button
             onClick={handleViewDetails}
-            className="p-2 rounded-lg transition-all bg-black/50 text-white hover:bg-black/70"
+            className="p-1.5 rounded-lg bg-black/70 text-white hover:bg-blue-500 transition-colors"
           >
-            <Eye size={14} />
+            <Eye size={12} />
           </button>
         </div>
       </div>
       
-      {/* Content */}
-      <div className="p-4">
-        <p className="text-xs font-medium uppercase tracking-wider mb-1" style={{ color: '#6b7280' }}>{product.category}</p>
+      <div className="p-3">
+        <p className="text-[10px] font-medium uppercase tracking-wider text-gray-500 mb-1">{product.category}</p>
         
-        <h3 className="text-white font-semibold text-sm leading-snug mb-2 line-clamp-2" style={{ minHeight: '2.5rem' }}>
+        <h3 className="text-white font-medium text-sm leading-snug mb-2 line-clamp-2 h-10">
           {product.name}
         </h3>
-
-        {/* Stars */}
-        <div className="flex items-center gap-0.5 mb-3">
-          {[...Array(5)].map((_, i) => (
-            <Star key={i} size={12} className="text-yellow-400 fill-yellow-400" />
-          ))}
-        </div>
         
-        <p className="text-cyan-400 font-bold text-xl mb-3">
+        <p className="text-cyan-400 font-bold text-lg mb-2">
           ₱{Number(product.price).toLocaleString('en-PH')}
         </p>
 
-        <p className="text-xs mb-4" style={{ color: product.stock_count > 10 ? '#34d399' : product.stock_count > 0 ? '#fbbf24' : '#f87171' }}>
+        <p className={`text-xs mb-3 ${product.stock_count > 10 ? 'text-emerald-400' : product.stock_count > 0 ? 'text-amber-400' : 'text-red-400'}`}>
           {product.stock_count > 0 ? `${product.stock_count} in stock` : 'Out of stock'}
         </p>
 
-        {/* Quantity & Button */}
         {!isOutOfStock && (
           <div className="flex items-center gap-2 mb-3">
-            <div className="flex items-center flex-1 rounded-lg" style={{ backgroundColor: '#141418' }}>
+            <div className="flex items-center flex-1 rounded-lg bg-[#141418]">
               <button
                 onClick={(e) => { e.stopPropagation(); setQuantity(q => Math.max(1, q - 1)); }}
-                className="p-2 text-gray-400 hover:text-white transition-colors"
+                className="p-1.5 text-gray-400 hover:text-white transition-colors"
               >
-                <Minus size={14} />
+                <Minus size={12} />
               </button>
-              <span className="flex-1 text-center text-white text-sm font-medium">{quantity}</span>
+              <span className="flex-1 text-center text-white text-xs font-medium">{quantity}</span>
               <button
                 onClick={(e) => { e.stopPropagation(); setQuantity(q => Math.min(product.stock_count, q + 1)); }}
-                className="p-2 text-gray-400 hover:text-white transition-colors"
+                className="p-1.5 text-gray-400 hover:text-white transition-colors"
               >
-                <Plus size={14} />
+                <Plus size={12} />
               </button>
             </div>
           </div>
@@ -144,24 +144,24 @@ export default function ProductCard({ product, onViewDetails }) {
         <button
           onClick={handleAddToCart}
           disabled={isOutOfStock}
-          className="w-full py-2.5 rounded-xl font-semibold text-sm flex items-center justify-center gap-2 transition-all"
-          style={isOutOfStock 
-            ? { backgroundColor: '#27272a', color: '#71717a', cursor: 'not-allowed' }
-            : isAdded
-              ? { backgroundColor: '#10b981', color: 'white' }
-              : { background: 'linear-gradient(135deg, #3b82f6 0%, #2563eb 100%)', color: 'white' }
-          }
+          className={`w-full py-2 rounded-lg font-medium text-sm flex items-center justify-center gap-2 transition-all ${
+            isOutOfStock 
+              ? 'bg-zinc-800 text-zinc-500 cursor-not-allowed' 
+              : isAdded
+                ? 'bg-emerald-500 text-white'
+                : 'bg-gradient-to-r from-blue-600 to-blue-700 text-white hover:from-blue-500 hover:to-blue-600'
+          }`}
         >
           {isOutOfStock ? (
             'OUT OF STOCK'
           ) : isAdded ? (
             <>
-              <Check size={16} />
+              <Check size={14} />
               ADDED
             </>
           ) : (
             <>
-              <ShoppingCart size={16} />
+              <ShoppingCart size={14} />
               ADD TO CART
             </>
           )}
@@ -170,3 +170,5 @@ export default function ProductCard({ product, onViewDetails }) {
     </div>
   );
 }
+
+export default memo(ProductCard);

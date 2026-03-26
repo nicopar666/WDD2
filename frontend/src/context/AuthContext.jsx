@@ -24,8 +24,8 @@ export function AuthProvider({ children }) {
     return user;
   }
 
-  async function signup(email, password) {
-    const user = await registerService({ email, password, password_confirmation: password });
+  async function signup(name, email, password) {
+    const user = await registerService({ name, email, password });
     setCurrentUser(user);
     return user;
   }

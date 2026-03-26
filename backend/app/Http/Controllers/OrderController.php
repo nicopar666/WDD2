@@ -39,7 +39,8 @@ class OrderController extends Controller
         $taxAmount = $subtotal * 0.12;
         $totalPrice = $subtotal + $taxAmount;
 
-        $order = Order::create([
+        $orderData = [
+            'user_id' => $request->user() ? $request->user()->id : null,
             'customer_name' => $validated['customer_name'],
             'email' => $validated['email'] ?? null,
             'phone' => $validated['phone'] ?? null,
@@ -51,7 +52,9 @@ class OrderController extends Controller
             'payment_gateway' => $validated['payment_gateway'] ?? 'Cash on Delivery',
             'shipping_address' => $validated['shipping_address'] ?? null,
             'payment_status' => true,
-        ]);
+        ];
+
+        $order = Order::create($orderData);
 
         if (!$product->is_preorder) {
             $product->decrement('stock_count', $quantity);
@@ -63,5 +66,14 @@ class OrderController extends Controller
     public function show(Order $order): JsonResponse
     {
         return response()->json(['data' => $order->load('product')]);
+    }
+
+    public function myOrders(Request $request): JsonResponse
+    {
+        $orders = Order::with('product')
+            ->where('user_id', $request->user()->id)
+            ->orderBy('created_at', 'desc')
+            ->get();
+        return response()->json(['data' => $orders]);
     }
 }

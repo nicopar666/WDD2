@@ -8,6 +8,8 @@ use App\Http\Controllers\AuthController;
 Route::prefix('v1')->group(function () {
     // Auth
     Route::post('/login', [AuthController::class, 'login']);
+    Route::post('/register', [AuthController::class, 'register']);
+    Route::get('/me', [AuthController::class, 'me']);
     
     // Products (public)
     Route::get('/products', [ProductController::class, 'index']);
@@ -16,6 +18,9 @@ Route::prefix('v1')->group(function () {
     // Orders (public - for purchases)
     Route::post('/orders', [OrderController::class, 'store']);
     Route::get('/orders', [OrderController::class, 'index']);
+    Route::middleware('auth:sanctum')->group(function () {
+        Route::get('/my-orders', [OrderController::class, 'myOrders']);
+    });
     
     // Admin routes (protected)
     Route::middleware('auth:sanctum')->group(function () {

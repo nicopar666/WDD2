@@ -1,7 +1,9 @@
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000/api/v1';
 
 export async function apiFetch(path, options = {}) {
-  const token = localStorage.getItem('admin_token');
+  const adminToken = localStorage.getItem('admin_token');
+  const userToken = localStorage.getItem('token');
+  const token = adminToken || userToken;
 
   const response = await fetch(`${API_URL}${path}`, {
     headers: {
@@ -13,13 +15,19 @@ export async function apiFetch(path, options = {}) {
   });
 
   if (response.status === 401) {
-    localStorage.removeItem('admin_token');
-    window.location.href = '/admin/login';
+    if (adminToken) {
+      localStorage.removeItem('admin_token');
+      window.location.href = '/admin/login';
+    } else if (userToken) {
+      localStorage.removeItem('token');
+      localStorage.removeItem('user');
+      window.location.href = '/login';
+    }
   }
 
   if (!response.ok) {
     const error = await response.json().catch(() => ({}));
-    throw new Error(error.message || 'Something went wrong');
+    throw new Error(error.message || 'Failed to fetch');
   }
 
   if (response.status === 204) return null;
